@@ -6,12 +6,16 @@ import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import org.example.entities.UserInfo;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.stereotype.Service;
+
 import java.security.Key;
 
 import java.util.Date;
 import java.util.Map;
 import java.util.function.Function;
 
+@Service
 public class JwtService {
 
     public static String SECRET = "zv6dk1onwo2vipqz96haklhopa1kbvv753rebpslybhhgbg83pzn7axbc4twj89pwsko9ew2xz4r5ib2kw3km4w3wyarqripyp1rwpaftvbibd94kfkc7z85g5jk3o6m";
@@ -38,8 +42,8 @@ public class JwtService {
         return Keys.hmacShaKeyFor(keyBytes);
     }
 
-    public Boolean validateToken(String token, UserInfo userInfo){
-        return  extractUserName(token).equals(userInfo.getUsername()) && !isExpired(token);
+    public Boolean validateToken(String token,  UserDetails userDetails){
+        return  extractUserName(token).equals(userDetails.getUsername()) && !isExpired(token);
     }
 
     public Boolean isExpired(String token){
