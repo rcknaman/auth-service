@@ -2,10 +2,12 @@ package org.example.service;
 
 import lombok.AllArgsConstructor;
 import org.example.entities.UserInfo;
+import org.example.eventProducer.Producer;
 import org.example.models.UserInfoDto;
 import org.example.repository.UserRepository;
 import org.example.utils.Validation;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -24,6 +26,13 @@ public class UserServiceDetailsImpl implements UserDetailsService {
     private PasswordEncoder passwordEncoder;
     @Autowired
     private UserRepository userRepository;
+
+
+    @Autowired
+    private Producer kafkaProducer;
+
+    @Value("${spring.kafka.topic.name}")
+    private String topicName;
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException{
@@ -49,7 +58,7 @@ public class UserServiceDetailsImpl implements UserDetailsService {
         }
         String userId = UUID.randomUUID().toString();
         userRepository.save(new UserInfo(userId, userInfoDto.getUsername(), userInfoDto.getPassword(), new HashSet<>()));
-        // pushEventToQueue
+        kafkaProducer.sendMessage(topicName, userInfoDto);
         return true;
     }
 }

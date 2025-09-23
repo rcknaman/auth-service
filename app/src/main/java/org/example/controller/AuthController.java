@@ -32,11 +32,6 @@ public class AuthController
     @Autowired
     private UserServiceDetailsImpl userDetailsService;
 
-    @Autowired
-    private Producer kafkaProducer;
-
-    @Value("${spring.kafka.topic.name}")
-    private String topicName;
 
 
 
@@ -50,11 +45,11 @@ public class AuthController
             RefreshToken refreshToken = refreshTokenService.createRefreshToken(userInfoDto.getUsername());
             Map<String, Object> claims = new HashMap<>();
             String jwtToken = jwtService.createToken(claims, userInfoDto.getUsername());
-            kafkaProducer.sendMessage(topicName, userInfoDto);
+            System.out.println(userInfoDto);
             return new ResponseEntity<>(JwtResponseDto.builder().accessToken(jwtToken).
                     token(refreshToken.getToken()).build(), HttpStatus.OK);
         }catch (Exception ex){
-            return new ResponseEntity<>("Exception in User Service", HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>(ex.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 

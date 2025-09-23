@@ -10,8 +10,9 @@ import org.example.entities.UserInfo;
 @Getter
 @Setter
 public class UserInfoDto extends UserInfo {
-    private String firstname;
-    private String lastname;
+    private String firstName;
+    private String lastName;
+    private String userName;
     private Long phoneNo;
     private String email;
 }
