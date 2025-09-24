@@ -25,9 +25,6 @@ public class RefreshTokenService {
 
     public RefreshToken createRefreshToken(String username){
         Optional<UserInfo> userInfoExtracted = userRepository.findByUsername(username);
-        if(!userInfoExtracted.isPresent()){
-            throw new UsernameNotFoundException("user not found!");
-        }
         RefreshToken refreshToken = RefreshToken.builder()
                 .userInfo(userInfoExtracted.get())
                 .token(UUID.randomUUID().toString())
@@ -47,6 +44,4 @@ public class RefreshTokenService {
         }
         return token;
     }
-
-
 }

@@ -1,37 +1,41 @@
 package org.example.service;
 
-import java.util.HashSet;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.UUID;
-
+import lombok.AllArgsConstructor;
 import org.example.entities.UserInfo;
+import org.example.eventProducer.Producer;
 import org.example.models.UserInfoDto;
 import org.example.repository.UserRepository;
+import org.example.utils.Validation;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Service;
+
+import java.util.HashSet;
+import java.util.Optional;
+import java.util.UUID;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
 @Component
 @AllArgsConstructor
-@Data
 public class UserServiceDetailsImpl implements UserDetailsService {
 
     @Autowired
-    private CustomUserDetails customUserDetails;
+    private PasswordEncoder passwordEncoder;
     @Autowired
     private UserRepository userRepository;
 
-    
+
     @Autowired
-    private final PasswordEncoder passwordEncoder;
+    private Producer kafkaProducer;
+
+    @Value("${spring.kafka.topic.name}")
+    private String topicName;
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException{
@@ -47,13 +51,17 @@ public class UserServiceDetailsImpl implements UserDetailsService {
     }
 
     public Boolean signupUser(UserInfoDto userInfoDto){
-        //        ValidationUtil.validateUserAttributes(userInfoDto);
+        Boolean isValid = Validation.validateUserAttributes(userInfoDto);
+        if(!isValid){
+            throw new IllegalArgumentException("please pass valid arguments");
+        }
         userInfoDto.setPassword(passwordEncoder.encode(userInfoDto.getPassword()));
-        if(Objects.nonNull(checkIfUserAlreadyExist(userInfoDto))){
+        if(checkIfUserAlreadyExist(userInfoDto).isPresent()){
             return false;
         }
         String userId = UUID.randomUUID().toString();
         userRepository.save(new UserInfo(userId, userInfoDto.getUsername(), userInfoDto.getPassword(), new HashSet<>()));
+        kafkaProducer.sendMessage(topicName, userInfoDto);
         return true;
     }
 }

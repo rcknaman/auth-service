@@ -10,6 +10,7 @@ import lombok.*;
 @Table(name = "roles")
 public class UserRoles {
 
+    @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "role_id")
     public long id;

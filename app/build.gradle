@@ -44,6 +44,9 @@ dependencies {
     implementation 'io.jsonwebtoken:jjwt-jackson:0.12.5'
 
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    implementation 'org.springframework.kafka:spring-kafka'
+
+
 }
 
 // Apply a specific Java toolchain to ease working on different environments.
@@ -51,9 +54,15 @@ java {
     toolchain {
         languageVersion = JavaLanguageVersion.of(21)
     }
+    sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = JavaVersion.VERSION_17
 }
 
 application {
     // Define the main class for the application.
     mainClass = 'org.example.App'
+}
+
+test {
+    failOnNoDiscoveredTests = false
 }
