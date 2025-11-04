@@ -27,9 +27,13 @@ public class UserServiceDetailsImpl implements UserDetailsService {
 
     @Autowired
     private PasswordEncoder passwordEncoder;
-    @Autowired
-    private UserRepository userRepository;
 
+    private UserRepository userRepository;
+    @Autowired
+    public UserServiceDetailsImpl(PasswordEncoder passwordEncoder, UserRepository userRepository){
+        this.userRepository=userRepository;
+        this.passwordEncoder=passwordEncoder;
+    }
 
     @Autowired
     private Producer kafkaProducer;
